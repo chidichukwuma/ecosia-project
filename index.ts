@@ -6,8 +6,8 @@ const port = 3000
 app.get('/tree', (req, res) => {
 
   let response = {
-    favoriteTree: "Oak Tree", 
-    more : "Mango tree"
+    favoriteTree: "Acacia raddiana", 
+    BestTree : " Iroko",
   };
   res.json(response);
 
@@ -17,5 +17,5 @@ app.get('/tree', (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Ecosia app listening on port ${port}`)
 })
