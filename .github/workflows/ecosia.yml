@@ -1,32 +1,31 @@
-# This is a basic workflow that is manually triggered
-
-name: Ecosia Master
-
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
+name: Production
 on:
   push:
     branches:
-    - name
-      
+    - master
+
 env:
   GIT_SHA: ${{ github.sha }}
   GIT_REF: ${{ github.ref }}
   GIT_PAT: ${{ secrets.GIT_PAT }}
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  EXPLORER_IMAGE: odytrice/nomad-explorer
-  BITCOIN_API_IMAGE: odytrice/nomad-bitcoin-api
-  BITCOIN_INDEXER_IMAGE: odytrice/nomad-bitcoin-indexer
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  # This workflow contains a single job called "greet"
-  greet:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+
+jobs: 
+ build:
+    name: Build
+    runs-on: ubuntu-latest
     steps:
-    # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ github.event.inputs.name }}"
+
+    - name: Checkout the repository
+      uses: actions/checkout@master
+
+    - name: Prescript 
+      run: |
+        apk add --no-cache groff less bash jq curl py-pip tzdata
+        pip install awscli
+
+    - name: Push to repository
+      run: |
+        $(aws ecr get-login --no-include-email --region us-east-2)
+        docker build -t 265311748595.dkr.ecr.us-west-2.amazonaws.com/ecosia:$GIT_SHA .
+        docker push 265311748595.dkr.ecr.us-east-2.amazonaws.com/fmscapproval:$GIT_SHA
