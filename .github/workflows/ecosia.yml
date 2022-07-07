@@ -7,7 +7,7 @@ on:
 env:
   GIT_SHA: ${{ github.sha }}
   GIT_REF: ${{ github.ref }}
-  GIT_PAT: ${{ secrets.GIT_PAT }}
+  # GIT_PAT: ${{ secrets.GIT_PAT }}
 
 
 jobs: 
