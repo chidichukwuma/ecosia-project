@@ -39,6 +39,12 @@ on:
 env:
   GIT_SHA: ${{ github.sha }}
   GIT_REF: ${{ github.ref }}
+  GIT_PAT: ${{ secrets.GIT_PAT }}
+  ECR_REGISTRY: 265311748595.dkr.ecr.us-east-2.amazonaws.com
+  ECR_REPOSITORY: ecosia
+  IMAGE_TAG: ${{ github.sha}}
+  BRANCH:  ${GIT_REF##*/}
+  
 jobs:
   build-and-push:
     name: Build and Push to ECR
@@ -61,10 +67,35 @@ jobs:
 
     - name: Build, Tag, and Push the Image to Amazon ECR
       id: build-image
-      env:
-        ECR_REGISTRY: 265311748595.dkr.ecr.us-east-2.amazonaws.com
-        ECR_REPOSITORY: ecosia
-        IMAGE_TAG: ${{ github.sha}}
+
+       
       run: |
         docker build --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+  deploy:
+    name: Update the Deployment
+    runs-on: ubuntu-latest
+    needs:
+    - build-and-push
+    steps:
+
+    - name: Checkout the Deployment Repository
+      run: |
+        git clone https://$GIT_PAT@github.com/chidichukwuma/ecosia-deploy.git deployment
+       
+
+    - name: Set latest images in the kustomize deployment
+      working-directory: deployment
+      run: |
+        cd $BRANCH
+        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+        kustomize edit set image $ECR_REGISTRY/$ECR_REPOSITORY:${GIT_SHA::8}
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add kustomization.yaml
+        git commit -m "Update ${GIT_REF##*/} docker images to ${GIT_SHA::8}"
+        git push https://$GIT_PAT@github.com/chidichukwuma/ecosia-deploy.git
+
+
+
