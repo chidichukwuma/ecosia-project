@@ -64,7 +64,7 @@ jobs:
       env:
         ECR_REGISTRY: 265311748595.dkr.ecr.us-east-2.amazonaws.com
         ECR_REPOSITORY: ecosia
-        IMAGE_TAG: $GIT_SHA
+        IMAGE_TAG: ${{ github.sha}}
       run: |
         docker build --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
