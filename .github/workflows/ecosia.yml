@@ -83,7 +83,7 @@ jobs:
     - name: Checkout the Deployment Repository
       run: |
         git clone https://$GIT_PAT@github.com/chidichukwuma/ecosia-deploy.git deployment
-       
+        echo ${GIT_REF##*/}
 
     - name: Set latest images in the kustomize deployment
       working-directory: deployment
