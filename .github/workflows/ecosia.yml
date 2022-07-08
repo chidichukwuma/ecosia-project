@@ -83,12 +83,12 @@ jobs:
     - name: Checkout the Deployment Repository
       run: |
         git clone https://$GIT_PAT@github.com/chidichukwuma/ecosia-deploy.git deployment
-        echo ${GIT_REF##*/}
+        
 
     - name: Set latest images in the kustomize deployment
       working-directory: deployment
       run: |
-        cd $BRANCH
+        cd ${GIT_REF##*/}
         curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
         kustomize edit set image $ECR_REGISTRY/$ECR_REPOSITORY:${GIT_SHA::8}
         git config --local user.email "action@github.com"
