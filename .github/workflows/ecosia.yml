@@ -1,37 +1,4 @@
-# name: Production
-# on:
-#   push:
-#     branches:
-#     - master
-
-# env:
-#   GIT_SHA: ${{ github.sha }}
-#   GIT_REF: ${{ github.ref }}
-#   # GIT_PAT: ${{ secrets.GIT_PAT }}
-
-
-# jobs: 
-#  build:
-#     name: Build
-#     runs-on: ubuntu-latest
-#     steps:
-
-#     - name: Checkout the repository
-#       uses: actions/checkout@master
-
-#     - name: Prescript 
-#       run: |
-#         apk add --no-cache groff less bash jq curl py-pip tzdata
-#         pip install awscli
-
-#     - name: Push to repository
-#       run: |
-#         $(aws ecr get-login --no-include-email --region us-east-2)
-#         docker build -t 265311748595.dkr.ecr.us-west-2.amazonaws.com/ecosia:$GIT_SHA .
-#         docker push 265311748595.dkr.ecr.us-east-2.amazonaws.com/fmscapproval:$GIT_SHA
-
-
-name: Build and Push Ecosia pipeline Image to AWS ECR
+name: Build and Push Ecosia Image to AWS ECR
 on:
   push:
     branches: [ master ]
@@ -40,10 +7,10 @@ env:
   GIT_SHA: ${{ github.sha }}
   GIT_REF: ${{ github.ref }}
   GIT_PAT: ${{ secrets.GIT_PAT }}
-  ECR_REGISTRY: 265311748595.dkr.ecr.us-east-2.amazonaws.com
+  ECR_REGISTRY: ${{ secrets.REGISTRY }}
   ECR_REPOSITORY: ecosia
   IMAGE_TAG: ${{ github.sha}}
-  BRANCH:  ${GIT_REF##*/}
+  BRANCH:  ${GIT_REF##*/} 
   
 jobs:
   build-and-push:
@@ -67,8 +34,6 @@ jobs:
 
     - name: Build, Tag, and Push the Image to Amazon ECR
       id: build-image
-
-       
       run: |
         docker build --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
